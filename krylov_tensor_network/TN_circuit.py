@@ -81,7 +81,7 @@ class TNCircuit():
             intervals_no_overlap, U_inds = maxDisjointIntervals(remaining_inds)
             Us_no_overlap = [remaining_Us[i] for i in U_inds]
             two_q_layer = two_q_gate_mpo(self.state.sites, Us_no_overlap, intervals_no_overlap, self.conserve)
-            two_q_layer.apply(self.state, {'compression_method':compression, 'chi_max':chi})
+            two_q_layer.apply(self.state, {'compression_method':compression, {'trunc_params':'chi_max':chi}})
             remaining_inds = [i for j, i in enumerate(remaining_inds) if j not in U_inds]
             remaining_Us = [i for j, i in enumerate(remaining_Us) if j not in U_inds]
         return 
@@ -169,10 +169,7 @@ def two_q_gate_mpo(sites, gates, inds: list[tuple], conserve=None):
         bond_dim = A.shape[1]
         I_tensor = (np.kron(np.eye(bond_dim), np.eye(2))).reshape(bond_dim,2,bond_dim,2).swapaxes(1,2)
         
-        if conserve == 'Sz':
-            Ws[ind1] = A
-        else:
-            Ws[ind1] = npc.Array.from_ndarray_trivial(A, labels=['wL', 'wR', 'p', 'p*'])
+        Ws[ind1] = A
     
         for i in range(ind1+1, ind2):
             if conserve == 'Sz':
@@ -181,10 +178,7 @@ def two_q_gate_mpo(sites, gates, inds: list[tuple], conserve=None):
             else:
                 Ws[i] = (npc.Array.from_ndarray_trivial(I_tensor, labels=['wL', 'wR', 'p', 'p*']))
         
-        if conserve == 'Sz':
-            Ws[ind2] = B
-        else:
-            Ws[ind2] = npc.Array.from_ndarray_trivial(B, labels=['wL', 'wR', 'p', 'p*'])
+        Ws[ind2] = B
 
         if ind2 != len(sites)-1:
             if n < len(inds)-1:
