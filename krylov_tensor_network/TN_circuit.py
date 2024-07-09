@@ -81,7 +81,7 @@ class TNCircuit():
             intervals_no_overlap, U_inds = maxDisjointIntervals(remaining_inds)
             Us_no_overlap = [remaining_Us[i] for i in U_inds]
             two_q_layer = two_q_gate_mpo(self.state.sites, Us_no_overlap, intervals_no_overlap, self.conserve)
-            two_q_layer.apply(self.state, {'compression_method':compression, {'trunc_params':'chi_max':chi}})
+            two_q_layer.apply(self.state, {'compression_method':compression, 'trunc_params':{'chi_max':chi}})
             remaining_inds = [i for j, i in enumerate(remaining_inds) if j not in U_inds]
             remaining_Us = [i for j, i in enumerate(remaining_Us) if j not in U_inds]
         return 
