@@ -39,7 +39,7 @@ class TNCircuit():
         else:
             return [self.mps_to_qubit_ordering[i] for i in inds]
     
-    def initialize_state(self, initial_state: list | int | str = 0, coeffs : list = None) -> None:
+    def initialize_state(self, initial_state: list | int | str = 0, coeffs = None, flip_inds = None) -> None:
         
         if type(initial_state) is list:
             product_state = [state_int_to_str(i) for i in initial_state]
@@ -49,12 +49,15 @@ class TNCircuit():
             product_state = ['down' for _ in range(self.L)]
         
         psi = MPS.from_product_state(self.lat.mps_sites(), product_state, self.lat.bc_MPS)
-
         if initial_state == 'GHZ':
-            psi2 = MPS.from_product_state(self.lat.mps_sites(), ['down' for _ in range(self.L)], self.lat.bc_MPS)
+            if flip_inds is None:
+                psi2 = MPS.from_product_state(self.lat.mps_sites(), ['down' for _ in range(self.L)], self.lat.bc_MPS)
+            else:
+                psi2 = MPS.from_product_state(self.lat.mps_sites(), ['down' if i in flip_inds else 'up' for i in range(self.L) ], self.lat.bc_MPS)
             if coeffs is None:
                 coeffs = [1/np.sqrt(2), 1/np.sqrt(2)]
-            psi.add(psi2, alpha=coeffs[0], beta=coeffs[1])
+            psi = psi.add(psi2, alpha=coeffs[0], beta=coeffs[1])
+        psi.canonical_form()
         self.state = psi
         return
     

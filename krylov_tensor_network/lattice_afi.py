@@ -100,7 +100,7 @@ def custom_lattice_cut(size,qubits):
 
 class lattice_2d:
 
-    def __init__(self, tp = 'heavy_hex', nx = 0, ny = 0, device_name = '', conf = 'regular'):
+    def __init__(self, tp = 'heavy_hex', nx = 0, ny = 0, device_name = '', conf = 'AFI', mps_order=None):
 
         self.layers = num_layers[tp]
         self.tp = tp
@@ -188,9 +188,15 @@ class lattice_2d:
                         if not ((indx1,indx2) in self.couplings or (indx2,indx1) in self.couplings):
                             self.couplings[(indx1,indx2)] = colorings[i%3,j%2][k]
                             self.couplings[(indx2,indx1)] = colorings[i%3,j%2][k]
-            mps_position_sort = sorted(self.positions.values(), key=lambda x: (reversor(x[1]), x[0]))
-            self.mps_to_qubit = {i:find_qubit[tuple(mps_position_sort[i])] for i in range(len(mps_position_sort))}
-            self.qubit_to_mps = {v:k for (k,v) in self.mps_to_qubit.items()}
+            
+            if mps_order is None:
+                mps_position_sort = sorted(self.positions.values(), key=lambda x: (reversor(x[1]), x[0]))
+                self.mps_to_qubit = {i:find_qubit[tuple(mps_position_sort[i])] for i in range(len(mps_position_sort))}
+                self.qubit_to_mps = {v:k for (k,v) in self.mps_to_qubit.items()}
+            else:
+                self.mps_to_qubit = {i:mps_order[i] for i in range(len(mps_order))}
+                self.qubit_to_mps = {v:k for (k,v) in self.mps_to_qubit.items()}
+
         
         self.original_numbering = {}
         self.original_to_current = {}
